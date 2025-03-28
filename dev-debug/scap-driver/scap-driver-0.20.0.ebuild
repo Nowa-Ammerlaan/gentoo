@@ -12,21 +12,30 @@ S="${WORKDIR}/libs-${PV}"
 
 LICENSE="Apache-2.0 GPL-2 MIT"
 SLOT="0"
-KEYWORDS="amd64 ~arm64 ~x86"
+KEYWORDS="~amd64 ~arm64 ~x86"
+
+BDEPEND="
+	dev-libs/uthash
+	sys-libs/zlib:=
+	virtual/libelf:=
+"
 
 CONFIG_CHECK="HAVE_SYSCALL_TRACEPOINTS ~TRACEPOINTS"
 
 # We need to specify the driver version manually since we do not use a git tree.
 # This version can be found as git tag on the same commit as the libs version.
-DRIVER_VERSION="7.3.0+driver"
+DRIVER_VERSION="8.0.0+driver"
 
 PATCHES=( "${FILESDIR}/0.20.0-fix-driver-and-bpf-makefile-for-kernel-6.13.patch" )
 
 src_configure() {
 	local mycmakeargs=(
-		# we will use linux-mod, so just pretend to use bundled deps
-		# in order to make it through the cmake setup.
+		# we will use linux-mod, so in order to make it through the cmake setup
+		# just pretend to use bundled deps and then override only what we need.
 		-DUSE_BUNDLED_DEPS=ON
+		-DUSE_BUNDLED_LIBELF=OFF
+		-DUSE_BUNDLED_UTHASH=OFF
+		-DUSE_BUNDLED_ZLIB=OFF
 		-DCREATE_TEST_TARGETS=OFF
 		-DDRIVER_VERSION="${DRIVER_VERSION}"
 	)
